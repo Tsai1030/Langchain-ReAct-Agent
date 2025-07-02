@@ -1,0 +1,19 @@
+{
+  "name": "medical-info-query-system",
+  "version": "1.0.0",
+  "description": "即時醫療資訊查詢系統 - 結合 Google 搜尋和 GPT-4o",
+  "main": "server/index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && npm run dev",
+    "client": "cd client && npm start",
+    "build": "cd client && npm run build",
+    "install-all": "npm install && cd server && npm install && cd ../client && npm install"
+  },
+  "keywords": ["medical", "query", "gpt", "google-search", "react"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+} 

@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Inter', 'Noto Sans TC', system-ui, sans-serif;
+  }
+  
+  body {
+    @apply bg-gradient-to-br from-medical-50 to-blue-50 min-h-screen;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-medical-600 hover:bg-medical-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl;
+  }
+  
+  .btn-secondary {
+    @apply bg-white hover:bg-gray-50 text-medical-600 font-medium py-3 px-6 rounded-lg border border-medical-200 transition-colors duration-200 shadow-sm hover:shadow-md;
+  }
+  
+  .input-field {
+    @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-medical-500 focus:border-transparent transition-all duration-200;
+  }
+  
+  .card {
+    @apply bg-white rounded-xl shadow-lg border border-gray-100 p-6;
+  }
+  
+  .loading-dots {
+    @apply inline-flex space-x-1;
+  }
+  
+  .loading-dots span {
+    @apply w-2 h-2 bg-medical-500 rounded-full animate-bounce;
+  }
+  
+  .loading-dots span:nth-child(2) {
+    animation-delay: 0.1s;
+  }
+  
+  .loading-dots span:nth-child(3) {
+    animation-delay: 0.2s;
+  }
+} 
