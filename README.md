@@ -1,265 +1,258 @@
-# 高醫即時醫療資訊查詢系統
+# RAG-Agent-Websearch
 
-一個整合 **雙重 RAG** (關鍵字 + 向量檢索) 醫師資料庫與 Web Search 即時資訊查詢的智能醫療資訊系統。
+本專案是一個結合 Retrieval-Augmented Generation (RAG) 與 ReAct Agent 架構的醫療資訊查詢系統。  
+後端採用 FastAPI，整合本地醫師資料庫（Chroma 向量庫）與網路搜尋（Google Serper API），  
+能根據用戶問題自動選擇最合適的查詢方式，並以大型語言模型（LLM）生成專業回覆。  
+前端可自訂（預設支援 React/Vite）。
 
-## 🎯 系統特色
+---
 
-### 🔍 雙重 RAG 架構
-- **關鍵字 RAG**: 基於精確關鍵字匹配的醫師檢索
-- **向量 RAG**: 基於 bge-m3 語義向量的智能檢索
-- **智能融合**: 優先使用向量檢索，關鍵字檢索作為備用
-- **Web Search**: 即時網路資訊搜尋
-- **AI 整合**: GPT-4o 智能分析與回答生成
+## 目錄
 
-### 👨‍⚕️ 醫師資料庫
-- 8 位心臟血管內科醫師完整資料
-- 包含專長、職稱、經歷、學歷、證照等詳細資訊
-- **雙重檢索**: 關鍵字匹配 + 語義向量檢索
-- **智能排序**: 基於相關度的智能排序
+- [專案特色](#專案特色)
+- [ReAct Agent 架構與原理](#react-agent-架構與原理)
+- [主要檔案說明](#主要檔案說明)
+- [安裝與操作步驟](#安裝與操作步驟)
+  - [1. Python 環境安裝](#1-python-環境安裝)
+  - [2. 取得 API 金鑰](#2-取得-api-金鑰)
+  - [3. 設定環境變數](#3-設定環境變數)
+  - [4. 安裝依賴套件](#4-安裝依賴套件)
+  - [5. 建立本地向量資料庫](#5-建立本地向量資料庫)
+  - [6. 啟動 FastAPI 後端](#6-啟動-fastapi-後端)
+  - [7. 前端啟動（可選）](#7-前端啟動可選)
+  - [8. 測試](#8-測試)
+- [API 說明](#api-說明)
+- [前端串接範例](#前端串接範例)
+- [技術棧與設計邏輯](#技術棧與設計邏輯)
+- [常見問題排查](#常見問題排查)
+- [聯絡方式](#聯絡方式)
 
-### 🏥 即時資訊查詢
-- 高醫即時叫號進度查詢
-- 動態網頁內容抓取
-- 智能錯誤處理與重試機制
+---
 
-## 🚀 快速開始
+## 專案特色
 
-### 如果出現python錯誤 要先進入環盡在執行後端
+- **RAG + ReAct Agent**：結合本地知識檢索與網路即時搜尋，智能決策查詢路徑。
+- **多工具整合**：可查詢醫師專長、學歷、經歷，也能搜尋醫療新知。
+- **高可擴展性**：可輕鬆擴充資料庫或新增工具。
+- **詳細日誌**：每次查詢過程完整記錄，方便除錯與追蹤。
 
-### 1. 環境設定
+---
+
+## ReAct Agent 架構與原理
+
+### 什麼是 ReAct Agent？
+
+ReAct（Reason + Act）Agent 是一種結合「推理」與「行動」的智能體架構。  
+它能根據用戶問題，**自動選擇合適的工具**（如本地資料庫查詢、網路搜尋），並將多個工具的結果整合，產生最終回覆。
+
+### 本專案的 ReAct Agent 流程
+
+1. **接收用戶問題**：如「林宗翰醫師的專長是什麼？」或「2024年高血壓治療新趨勢」。
+2. **推理判斷**：Agent 會根據問題內容，決定要用哪個工具：
+   - 若問題與本地醫師資料相關，優先查詢向量資料庫（RAG）。
+   - 若問題需最新醫療資訊，則呼叫網路搜尋工具。
+   - 若問題複雜，則可多次交互使用兩種工具。
+3. **行動（Action）**：Agent 執行查詢，取得資料。
+4. **整合回覆**：LLM 將查詢結果彙整，生成自然語言答案。
+
+### 使用的 LangChain Tool
+
+- **醫師資料庫查詢（RAG Tool）**  
+  - 工具名稱：`醫師資料庫查詢`
+  - 功能：查詢本地向量資料庫，檢索醫師姓名、專長、學歷、經歷等。
+  - 實作：`rag_query` 函數，結合 HuggingFace Embeddings + Chroma + RetrievalQA。
+
+- **網路搜尋（Web Search Tool）**  
+  - 工具名稱：`網路搜尋`
+  - 功能：透過 Google Serper API 查詢網路最新醫療資訊。
+  - 實作：`smart_web_search` 函數，包裝 Serper API。
+
+- **Agent 整合**  
+  - 使用 LangChain 的 `initialize_agent`，將上述兩個工具註冊給 Agent，並指定 AgentType 為 `ZERO_SHOT_REACT_DESCRIPTION`，讓 LLM 能根據描述自主選擇工具。
+
+---
+
+## 主要檔案說明
+
+| 檔案名稱                | 用途說明                                                                 |
+|-------------------------|--------------------------------------------------------------------------|
+| `react_agent_api.py`    | FastAPI 主後端，ReAct Agent 問答 API，整合 RAG 與 Web Search 工具         |
+| `build_doctor_db.py`    | 將 `doctors.json` 轉為向量資料庫（Chroma），建立本地醫師知識庫            |
+| `doctors.json`          | 醫師原始資料（姓名、專長、學歷、經歷等）                                 |
+| `chroma_db/`            | Chroma 向量資料庫目錄                                                    |
+| `client/`               | 前端專案（可選，React/Vite）                                             |
+| `test_*.py`/`test_*.js` | 各種測試檔案，驗證 RAG、Web Search、API 等功能                            |
+
+---
+
+## 安裝與操作步驟
+
+### 1. Python 環境安裝
+
+建議使用 Python 3.9 以上版本。  
+可用 Anaconda 或 venv 建立虛擬環境：
+
 ```bash
-# 設定環境變數
-setup-env.bat
-
-# 編輯 server/.env 檔案，填入您的 API 金鑰
-OPENAI_API_KEY=your_openai_api_key_here
-SERPER_API_KEY=your_serper_api_key_here
-SCRAPING_BEE_KEY=your_scraping_bee_key_here
+conda create -n myenv python=3.10
+conda activate myenv
+# 或
+python -m venv myenv
+myenv\Scripts\activate
 ```
 
-### 2. 建立向量資料庫 (首次使用)
-```bash
-# 建立 Python 虛擬環境
-python -m venv venv
-venv\Scripts\activate
+---
 
-# 安裝必要套件
-pip install chromadb sentence-transformers
+### 2. 取得 API 金鑰
 
-# 建立向量資料庫
-python test_vector_rag.py
+- **OpenAI API Key**：用於 GPT-4o LLM  
+  申請：[https://platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys)
+- **Serper API Key**：用於 Google 搜尋  
+  申請：[https://serper.dev/](https://serper.dev/)
+
+---
+
+### 3. 設定環境變數
+
+在專案根目錄建立 `.env` 檔案，內容如下：
+
+```env
+OPENAI_API_KEY=你的OpenAI金鑰
+SERPER_API_KEY=你的Serper金鑰
 ```
 
-### 3. 啟動系統
+---
+
+### 4. 安裝依賴套件
+
 ```bash
+pip install -r requirements.txt
+```
+
+**requirements.txt 範例：**
+```txt
+fastapi
+uvicorn
+langchain
+langchain-community
+langchain-huggingface
+langchain-openai
+chromadb
+python-dotenv
+sentence-transformers
+transformers
+torch
+duckdb
+requests
+pytest
+```
+
+---
+
+### 5. 建立本地向量資料庫
+
+```bash
+python build_doctor_db.py
+```
+- 此步驟會根據 `doctors.json` 產生 `chroma_db/` 目錄。
+
+---
+
+### 6. 啟動 FastAPI 後端
+
+```bash
+python react_agent_api.py
+```
+- 啟動後，API 端點為：`http://localhost:8000/api/ask`
+
+---
+
+### 7. 前端啟動（可選）
+
+若有前端（如 React/Vite），進入 `client/` 目錄：
+
+```bash
+cd client
+npm install
 npm run dev
 ```
+- 前端預設在 `http://localhost:5173`，可自行修改。
 
-### 4. 使用 ReAct Agent
-在後端運行後，可透過 POST `/api/query` 並傳入 `query` 欄位啟動 ReAct 推理流程。
-系統會依序輸出 Thought、Action、Observation，最後回傳診斷報告。
+---
 
-### 5. 訪問系統
-- 前端: http://localhost:3000
-- 後端: http://localhost:3001
-- 健康檢查: http://localhost:3001/health
+### 8. 測試
 
-### 須進入資料夾
+- 執行測試檔案（以 Python 為例）：
+  ```bash
+  python test_agent_tool.py
+  ```
+- 也可用 Postman/curl 測試 API。
+
+---
+
+## API 說明
+
+### 問答 API
+
+- **端點**：`POST /api/ask`
+- **參數**：JSON 格式，`{"question": "你的問題"}`
+- **回傳**：`{"result": "AI 回答內容"}`
+
+#### 範例
+
 ```bash
-cd "C:\Users\USER\Desktop\websearch-medical-query-codex-react-agent\client"
-npm run install-all
-npm run dev
-```
-```bash
-cd "C:\Users\USER\Desktop\websearch-medical-query-codex-react-agent\server"
-npm run install-all
-npm run dev
+curl -X POST "http://localhost:8000/api/ask" -H "Content-Type: application/json" -d "{\"question\": \"林宗翰醫師的專長\"}"
 ```
 
-## 📋 查詢範例
+---
 
-### 醫師資訊查詢
-```
-高醫朱志生醫師的專長是什麼？
-李香君醫師的學歷和經歷
-林宗翰醫師的職稱
-心臟科醫師推薦
-糖尿病專科醫師
-```
+## 前端串接範例
 
-### 即時叫號查詢
-```
-現在高醫心臟內科叫到幾號了？
-高醫心臟血管內科４診看到幾號了？
-```
+假設你用 React + Axios：
 
-### 綜合查詢
-```
-高醫林宗翰醫師現在心臟內科叫到幾號？
-朱志生醫師的專長是什麼？現在叫到幾號？
-```
+```js
+import axios from "axios";
 
-## 🏗️ 系統架構
-
-### 前端 (React + TypeScript)
-- `client/src/App.tsx`: 主要應用程式
-- `client/src/components/`: UI 元件
-- `client/src/services/api.ts`: API 服務
-
-### 後端 (Node.js + Express)
-- `server/services/doctorRagService.js`: 關鍵字 RAG 服務
-- `server/services/vectorRagService.js`: 向量 RAG 服務
-- `server/services/queryService.js`: 主要查詢處理服務
-- `server/services/scrapingBeeService.js`: 即時資訊服務
-- `server/services/reactAgentService.js`: ReAct 推理服務
-
-### 資料庫
-- `doctors.json`: 醫師資料庫 (8 位心臟血管內科醫師)
-- `chroma_db/doctorv1/`: ChromaDB 向量資料庫
-
-## 🔧 技術特色
-
-### 雙重 RAG 系統
-- **關鍵字 RAG**: 純 JavaScript 實現，穩定可靠
-- **向量 RAG**: 基於 bge-m3 的語義檢索，理解力更強
-- **智能融合**: 優先使用向量檢索，關鍵字檢索作為備用
-- **相關度排序**: 基於相似度的智能排序算法
-- **即時載入**: 動態載入醫師資料庫
-
-### Web Search 整合
-- **並行處理**: 雙重 RAG 檢索與 Web 搜尋同時執行
-- **智能路由**: 根據查詢類型選擇最佳資料來源
-- **錯誤處理**: 優雅的降級機制
-- **結果融合**: GPT-4o 智能整合多來源資訊
-
-### 即時資訊服務
-- **重試機制**: 最多 3 次重試，提高成功率
-- **多種解析策略**: HTML 結構解析 + 內容分析
-- **超時控制**: 45 秒超時，避免長時間等待
-- **模擬資料**: 當無法取得即時資料時的備用方案
-
-## 🧠 ReAct Agent 模式
-
-新增 `server/services/reactAgentService.js`，使用 GPT 依循 **Thought → Action → Observation** 流程逐步推理。
-
-可用工具：
-1. `doctor_rag` – 醫師資料庫檢索
-2. `vector_rag` – 向量語義檢索
-3. `web_search` – Google 搜尋
-4. `finish` – 產生最終診斷報告
-
-執行查詢時，Agent 會根據使用者案例多次呼叫上述工具，最後給出診斷結果。
-
-## 🧪 測試
-
-### 完整系統測試
-```bash
-node test_integrated_vector_system.js
-```
-
-### 向量 RAG 測試
-```bash
-python test_vector_rag.py "心臟科醫師"
-```
-
-### 單一查詢測試
-```bash
-node test_rag_web_integration.js "高醫朱志生醫師的專長是什麼？"
-```
-
-### 測試覆蓋範圍
-- ✅ 關鍵字 RAG 醫師檢索功能
-- ✅ 向量 RAG 語義檢索功能
-- ✅ Web Search 網路搜尋
-- ✅ 即時資訊查詢
-- ✅ AI 整合回答生成
-- ✅ 錯誤處理與降級
-
-## 📊 醫師資料庫
-
-### 心臟血管內科醫師 (8 位)
-1. **林宗翰**: 重症加護醫學、心律不整治療
-2. **盧怡旭**: 循環學、重症照護、高血壓
-3. **林宗憲**: 高血壓、心絞痛、心肌梗塞、心衰竭
-4. **朱志生**: 心臟電氣生理學、介入性心導管治療
-5. **李香君**: 高血壓、心衰竭、心肌梗塞、冠狀動脈疾病
-6. **林新進**: 高血壓、高血脂、心絞痛、心肌梗塞
-7. **朱俊源**: 高血壓、高血脂、心絞痛、心肌梗塞
-
-### 資料結構
-```json
-{
-  "name": "醫師姓名",
-  "department": "科別",
-  "specialty": ["專長1", "專長2"],
-  "title": ["職稱1", "職稱2"],
-  "experience": ["經歷1", "經歷2"],
-  "education": ["學歷1", "學歷2"],
-  "certifications": ["證照1", "證照2"]
+async function askAgent(question) {
+  const response = await axios.post("http://localhost:8000/api/ask", {
+    question,
+  });
+  return response.data.result;
 }
 ```
 
-## 🔍 查詢處理流程
+---
 
-```
-使用者查詢
-    ↓
-並行處理
-├── 關鍵字 RAG 檢索 (醫師資料庫)
-├── 向量 RAG 檢索 (語義檢索)
-└── Web Search (網路搜尋)
-    ↓
-智能結果融合
-    ↓
-即時資訊檢查
-    ↓
-GPT-4o 整合分析
-    ↓
-智能回答生成
-```
+## 技術棧與設計邏輯
 
-## 🛠️ 開發指南
+- **FastAPI**：高效 Python Web 框架，提供 RESTful API。
+- **LangChain**：負責 Agent、RAG、工具鏈整合。
+- **HuggingFace Embeddings**：文本向量化（`BAAI/bge-m3`）。
+- **Chroma**：本地向量資料庫，支援高效檢索。
+- **Google Serper API**：網路搜尋，取得最新醫療資訊。
+- **OpenAI GPT-4o**：作為 LLM，負責推理、整合與生成答案。
+- **Uvicorn**：ASGI 伺服器，啟動 FastAPI。
 
-### 新增醫師資料
-1. 編輯 `doctors.json`
-2. 按照現有格式新增醫師資訊
-3. 重新建立向量資料庫: `python test_vector_rag.py`
-4. 重新啟動服務器
+### 設計邏輯
 
-### 修改 RAG 權重
-- 關鍵字 RAG: 編輯 `server/services/doctorRagService.js` 中的 `keywordWeights` 配置
-- 向量 RAG: 調整 `test_vector_rag.py` 中的相似度閾值
+1. 啟動時載入本地醫師向量資料庫與嵌入模型。
+2. 註冊兩個 LangChain Tool（RAG、本地查詢 + Web Search）。
+3. 用戶發問時，ReAct Agent 會根據問題內容自動選擇工具，並可多次交互推理。
+4. 最終由 LLM 統整所有查詢結果，生成專業且自然的回覆。
 
-### 調整 AI 回答
-修改 `server/services/queryService.js` 中的 `createIntegratedPrompt` 方法
+---
 
-## 📝 更新日誌
+## 常見問題排查
 
-### v3.0.0 - 雙重 RAG 整合版
-- ✅ 新增向量 RAG 系統 (bge-m3)
-- ✅ 實現雙重 RAG 架構 (關鍵字 + 向量)
-- ✅ 智能結果融合機制
-- ✅ 優化語義檢索能力
-- ✅ 新增向量資料庫持久化
-- ✅ 完善測試套件
+- **模型下載很慢或卡住**：請確認網路暢通，或手動下載 HuggingFace 模型到本地並指定路徑。
+- **API Key 無效**：請確認 `.env` 檔案內容正確，且金鑰未過期。
+- **Chroma 警告**：如遇到 Chroma 棄用警告，請參考官方文檔升級寫法。
+- **推送 GitHub 出錯**：請確認已經有 commit，且分支名稱為 `main`。
+- **前端 CORS 問題**：FastAPI 已預設允許所有來源跨域，如有特殊需求可調整 `CORSMiddleware` 設定。
 
-### v2.0.0 - RAG + Web Search 整合版
-- ✅ 新增醫師 RAG 檢索系統
-- ✅ 實現分層整合架構
-- ✅ 優化即時資訊服務
-- ✅ 改善 AI 回答品質
-- ✅ 新增完整測試套件
+---
 
-### v1.1.0 - 穩定版
-- ✅ 基本醫療資訊搜尋
-- ✅ 高醫即時叫號查詢
-- ✅ Google 搜尋整合
-- ✅ GPT-4o AI 分析
+## 聯絡方式
 
-## 🤝 貢獻
+如有問題，歡迎開 issue 或聯絡作者。
 
-歡迎提交 Issue 和 Pull Request！
-
-## 📄 授權
-
-MIT License 
+---
