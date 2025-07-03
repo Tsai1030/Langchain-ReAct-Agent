@@ -547,8 +547,8 @@ if len(doctor['specialty']) > 8:  # 調整閾值
 
 ## 📞 聯絡我們
 
-- 專案連結: [https://github.com/yourusername/RAG-Agent-Websearch](https://github.com/Tsai1030/Langchain-ReAct-Agent/tree/main)
-- 問題回報: [https://github.com/yourusername/RAG-Agent-Websearch/issues](https://github.com/Tsai1030/Langchain-ReAct-Agent/tree/main)
+- 專案連結: (https://github.com/Tsai1030/Langchain-ReAct-Agent/tree/main)
+- 問題回報: (https://github.com/Tsai1030/Langchain-ReAct-Agent/tree/main)
 - 電子郵件: pijh102511@gmail.com
 - **版本**: v3.0
 - **更新日期**: 2025-07-04
