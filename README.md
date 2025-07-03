@@ -503,13 +503,6 @@ if len(doctor['specialty']) > 8:  # 調整閾值
 # 在 medical_patterns 中新增
 'new_pattern': r'(新的正則表達式模式)',
 ```
-
-## 📞 聯絡資訊
-
-- **專案連結**: [https://github.com/Tsai1030/Langchain-ReAct-Agent](https://github.com/Tsai1030/Langchain-ReAct-Agent)
-- **版本**: v3.0
-- **更新日期**: 2025-01-27
-
 ---
 
 ## 🐛 常見問題
@@ -554,9 +547,11 @@ if len(doctor['specialty']) > 8:  # 調整閾值
 
 ## 📞 聯絡我們
 
-- 專案連結: https://github.com/yourusername/RAG-Agent-Websearch
-- 問題回報: https://github.com/yourusername/RAG-Agent-Websearch/issues
-- 電子郵件: your.email@example.com
+- 專案連結: [https://github.com/yourusername/RAG-Agent-Websearch](https://github.com/Tsai1030/Langchain-ReAct-Agent/tree/main)
+- 問題回報: [https://github.com/yourusername/RAG-Agent-Websearch/issues](https://github.com/Tsai1030/Langchain-ReAct-Agent/tree/main)
+- 電子郵件: pijh102511@gmail.com
+- **版本**: v3.0
+- **更新日期**: 2025-07-04
 
 ---
 
