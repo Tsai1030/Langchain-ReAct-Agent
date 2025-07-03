@@ -5,19 +5,19 @@
 ## 🚀 系統演示
 
 ### 查詢本地醫師資料
-![醫師資料查詢](screenshot1.png)
+![醫師資料查詢](images/screenshot1.png)
 *系統成功查詢高雄醫學大學醫師的位置資訊*
 
 ### 智能推理與多工具協作
-![ReAct Agent 推理過程](screenshot2.png)
+![ReAct Agent 推理過程](images/screenshot2.png)
 *展示 ReAct Agent 的推理過程，包含多步驟思考與行動*
 
 ### 醫療症狀查詢
-![症狀查詢](screenshot3.png)
+![症狀查詢](images/screenshot3.png)
 *系統提供流感相關症狀的詳細醫療資訊*
 
 ### 網頁介面
-![Web 介面](screenshot4.png)
+![Web 介面](images/screenshot4.png)
 *直觀的網頁介面，支援即時醫療資訊查詢*
 
 ## ✨ 專案特色
