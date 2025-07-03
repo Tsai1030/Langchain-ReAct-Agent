@@ -9,7 +9,7 @@
 *系統成功查詢高雄醫學大學醫師的位置資訊*
 
 ### 智能推理與多工具協作
-![ReAct Agent 推理過程](images/screenshot2.png)
+![ReAct Agent 推理過程](images/screenshot5.png)
 *展示 ReAct Agent 的推理過程，包含多步驟思考與行動*
 
 ### 醫療症狀查詢
