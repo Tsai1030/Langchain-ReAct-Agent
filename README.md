@@ -319,7 +319,7 @@ self.medical_patterns = {
 }
 ```
 
-## �� 同義詞字典
+## 📋 同義詞字典
 
 ### 職稱同義詞
 | 標準術語 | 同義詞 |
@@ -375,7 +375,7 @@ python build_vector2.py test
 python list_collections.py
 ```
 
-## �� 處理統計
+## 📋 處理統計
 
 ### 資料處理結果
 - **總醫師數**: 174 位
