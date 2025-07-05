@@ -144,11 +144,12 @@ embedding = model.encode(text)
 
 ### 2. 智能文本切割 (Smart Chunking)
 
-#### 基於內容的切割策略
-- **基本資訊片段**: 醫師基本資訊和主要專長
-- **專長分組**: 長專長列表按語義分組
-- **職位經歷**: 按時間軸分組職位經歷
-- **認證資訊**: 專科認證和學歷分組
+#### 基於資料結構的切割策略（非標點符號切割）
+這個系統**並未使用傳統的標點符號切割**，而是採用更智能的結構化切割策略：
+
+- **基於欄位類型切割**: 按照醫師資料的邏輯結構（專長、職稱、經歷等）進行切割
+- **基於數量閾值切割**: 當某個欄位內容過多時（如專長超過8個），進行分組切割
+- **基於語義完整性切割**: 保持每個片段的語義完整性，不會在句子中間切斷
 
 ```python
 def chunk_doctor_data_smart(doctor: Dict[str, Any]) -> List[Dict[str, Any]]:
@@ -158,13 +159,24 @@ def chunk_doctor_data_smart(doctor: Dict[str, Any]) -> List[Dict[str, Any]]:
     basic_info = f"{doctor['name']} 醫師，專科：{doctor['department']}"
     chunks.append({'text': basic_info, 'chunk_type': 'basic_info'})
     
-    # 2. 專長分組處理
+    # 2. 專長分組處理（按數量分組，非標點符號）
     if len(doctor['specialty']) > 8:
         specialty_groups = [doctor['specialty'][i:i+8] for i in range(0, len(doctor['specialty']), 8)]
-        # 為每組建立片段
+        for i, group in enumerate(specialty_groups):
+            specialty_text = f"{doctor['name']} 醫師專長：{' '.join(group)}"
+            chunks.append({'text': specialty_text, 'chunk_type': 'specialty'})
+    
+    # 3. 職稱片段（完整保留）
+    if doctor['title']:
+        title_text = f"{doctor['name']} 醫師現任職位：{' '.join(doctor['title'])}"
+        chunks.append({'text': title_text, 'chunk_type': 'current_position'})
     
     return chunks
 ```
+
+#### 與傳統標點符號切割的差異
+- **傳統方法**: 按句號、逗號等標點符號切割，可能破壞語義完整性
+- **此系統方法**: 按醫師資料的邏輯結構切割，保持每個片段的專業完整性
 
 ## 資料庫技術
 
