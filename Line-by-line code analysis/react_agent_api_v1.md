@@ -73,12 +73,11 @@ vectorstore = Chroma(
 )
 ```
 ```
-用戶查詢 → Agent 分析 → 選擇工具 → 執行工具 → 處理結果 → 生成回答
-    ↓
-如果還需要更多資訊 → 繼續迭代 (最多5次)
-    ↓
-達到最大迭代次數或獲得滿意答案 → 停止並返回結果
+用戶查詢 → 意圖分析 → 策略選擇 → 資訊檢索 → 交叉驗證 → 格式化 → 最終回答
+    ↓         ↓         ↓         ↓         ↓         ↓         ↓
+  Thought  Action  Observation  Reasoning  Action  Observation  Answer
 ```
+
 **功能特色：**
 - 使用本地醫師資料庫進行語意搜尋
 - 支援醫師姓名、專長、學歷等多維度查詢
@@ -109,9 +108,11 @@ agent = initialize_agent(
 )
 ```
 ```
-用戶查詢 → 意圖分析 → 策略選擇 → 資訊檢索 → 交叉驗證 → 格式化 → 最終回答
-    ↓         ↓         ↓         ↓         ↓         ↓         ↓
-  Thought  Action  Observation  Reasoning  Action  Observation  Answer
+用戶查詢 → Agent 分析 → 選擇工具 → 執行工具 → 處理結果 → 生成回答
+    ↓
+如果還需要更多資訊 → 繼續迭代 (最多5次)
+    ↓
+達到最大迭代次數或獲得滿意答案 → 停止並返回結果
 ```
 
 **功能特色：**
