@@ -56,11 +56,6 @@
 6. **FINAL_ANSWER** - 整合式回答
 
 ### 推理流程
-```
-用戶查詢 → 意圖分析 → 策略選擇 → 資訊檢索 → 交叉驗證 → 格式化 → 最終回答
-    ↓         ↓         ↓         ↓         ↓         ↓         ↓
-  Thought  Action  Observation  Reasoning  Action  Observation  Answer
-```
 
 ## 🧠 核心功能模組
 
@@ -112,6 +107,11 @@ agent = initialize_agent(
     max_iterations=5,
     early_stopping_method="generate"
 )
+```
+```
+用戶查詢 → 意圖分析 → 策略選擇 → 資訊檢索 → 交叉驗證 → 格式化 → 最終回答
+    ↓         ↓         ↓         ↓         ↓         ↓         ↓
+  Thought  Action  Observation  Reasoning  Action  Observation  Answer
 ```
 
 **功能特色：**
