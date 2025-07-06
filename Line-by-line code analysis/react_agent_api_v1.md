@@ -35,24 +35,32 @@
 
 ## 🔧 技術棧 (Technology Stack)
 
-### 後端技術 (Backend)
-- **FastAPI**: 現代化 Python Web 框架，提供高性能 API 服務
-- **LangChain**: AI 應用開發框架，實現智能 Agent 邏輯
-- **ChromaDB**: 向量資料庫，支援語意搜尋功能
-- **HuggingFace Embeddings**: 使用 BAAI/bge-m3 模型進行文本向量化
-- **OpenAI GPT-4o**: 大語言模型，提供自然語言理解與生成
+| 層級 | 技術 | 用途 |
+|------|------|------|
+| **語言基礎** | Python 3.8+ | 主要開發語言 |
+| **API 層** | FastAPI | 高效能非同步 API 服務 |
+| **AI 層** | GPT-4O + LangChain | 自然語言理解與生成 |
+| **檢索層** | ChromaDB + BGE-M3 | 向量資料庫與語義檢索 |
+| **搜尋層** | Google Serper API | 即時網路資訊獲取 |
+| **部署層** | Uvicorn | ASGI 伺服器 |
+| **配置管理** | Python-dotenv | 環境變數管理 |
 
-### 前端技術 (Frontend)
-- **React 18**: 現代化前端框架
-- **TypeScript**: 型別安全的 JavaScript 超集
-- **Tailwind CSS**: 實用優先的 CSS 框架
-- **Vite**: 快速建置工具
-- **Axios**: HTTP 客戶端庫
+## 🧠 ReAct 框架實現
 
-### 資料處理 (Data Processing)
-- **Python**: 主要開發語言
-- **Uvicorn**: ASGI 伺服器
-- **Python-dotenv**: 環境變數管理
+### 六大核心動作
+1. **ANALYZE_QUERY** - 智能查詢分析
+2. **SEARCH_RAG** - 本地資料庫檢索
+3. **SEARCH_WEB** - 網路即時搜尋
+4. **VALIDATE_INFORMATION** - 資訊交叉驗證
+5. **FORMAT_RESPONSE** - 專業格式化
+6. **FINAL_ANSWER** - 整合式回答
+
+### 推理流程
+```
+用戶查詢 → 意圖分析 → 策略選擇 → 資訊檢索 → 交叉驗證 → 格式化 → 最終回答
+    ↓         ↓         ↓         ↓         ↓         ↓         ↓
+  Thought  Action  Observation  Reasoning  Action  Observation  Answer
+```
 
 ## 🧠 核心功能模組
 
